@@ -22,6 +22,7 @@ const Layout = styled.div`
   top: 0;
   width: 100%;
   background: linear-gradient(to left, #34e89e, #0f3443);
+  z-index: 200;
 `
 const Navigation = styled.ul`
   display: flex;
@@ -60,13 +61,12 @@ const MENU_ITEMS = [
     path: "/",
     icon: faHouse,
   },
-  {
-    title: "Login",
-    path: "/auth/login",
-    icon: faRightToBracket,
-  },
-  { title: "Register", path: "/auth/register", icon: faUserPen },
-  { title: "My Profile", path: "/profile", icon: faUser },
+  // {
+  //   title: "Login",
+  //   path: "/auth/login",
+  //   icon: faRightToBracket,
+  // },
+  // { title: "Register", path: "/auth/register", icon: faUserPen },
   { title: "Match", path: "/matcher", icon: faFireFlameCurved },
 ]
 
@@ -79,7 +79,7 @@ function renderRoute({ title, path, icon }) {
   )
 }
 
-export default function NavBar() {
+export default function NavBar({ username }) {
   const navigate = useNavigate()
 
   function signOut() {
@@ -91,6 +91,12 @@ export default function NavBar() {
     <Layout>
       <Navigation>
         {MENU_ITEMS.map(renderRoute)}
+        {renderRoute({
+          title: username,
+          path: `/profile/${username}`,
+          icon: faUser,
+        })}
+
         <li>
           <Button type="text" onClick={() => signOut()}>
             Log Out

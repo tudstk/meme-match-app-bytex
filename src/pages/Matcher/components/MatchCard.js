@@ -5,6 +5,7 @@ import React, { useCallback, useContext } from "react"
 import styled from "styled-components"
 import { MatcherContext } from "../../../services/matcherContext"
 import { db } from "../../../utils/firebase"
+import { Link } from "react-router-dom"
 
 const Wrap = styled.div`
   display: flex;
@@ -37,7 +38,9 @@ export default function MatchCard({ userId, avatarUrl, username }) {
   return (
     <Wrap key={userId}>
       <Avatar src={avatarUrl} alt={username} />
-      <div>{username}</div>
+      <Link to={`/${username}`}>
+        <div>{username}</div>
+      </Link>
       <Button
         type="text"
         icon={<FontAwesomeIcon icon={faTrash} />}

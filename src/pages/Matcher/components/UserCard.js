@@ -5,6 +5,7 @@ import { db } from "../../../utils/firebase"
 import { MatcherContext } from "../../../services/matcherContext"
 import { faCircleXmark, faHeart } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Link } from "react-router-dom"
 
 const ProfileCard = styled(Card)`
   width: 510px;
@@ -36,9 +37,11 @@ const Details = styled.div`
 
 const CardButton = styled.button`
   border-radius: 50%;
-  padding: 18px;
-  font-size: 30px;
+  padding: 14px;
+  font-size: 23px;
   border: none;
+  margin-top: 1rem;
+  cursor: pointer;
 `
 const ButtonWrap = styled.div`
   display: flex;
@@ -108,7 +111,10 @@ export default function UserCard({ userId, username, description }) {
       <MemeCarousel memes={memesByUser?.[userId] || []} />
 
       <Details>
-        <h3>{username}</h3>
+        <Link to={`/${username}`}>
+          <h3>{username}</h3>
+        </Link>
+
         <p>{description}</p>
       </Details>
       <ButtonWrap>{buttons.map(renderButton)}</ButtonWrap>

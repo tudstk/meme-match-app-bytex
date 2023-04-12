@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react"
-import styled from "styled-components"
 import { useParams } from "react-router-dom"
-import UploadAvatar from "./components/UploadAvatar"
-import UpdateDescriptionModal from "./components/UpdateDescriptionModal"
-import UploadMemeModal from "./components/UploadMemeModal"
-
-import { auth, db } from "../../utils/firebase"
+import styled from "styled-components"
+import { db, auth } from "../../utils/firebase"
 
 const Content = styled.div`
   max-width: 880px;
@@ -71,14 +67,14 @@ const ActionsWrap = styled.div`
   }
 `
 
-export default function Profile() {
+export default function OtherProfile() {
+  const { user } = useParams()
   const [userDetails, setUserDetails] = useState({})
   const [userMemes, setUserMemes] = useState([])
-  const { username } = useParams()
-  // get user details
+
   useEffect(() => {
     db.collection("users")
-      .where("username", "==", username)
+      .where("username", "==", user)
       .onSnapshot((snapshot) => {
         const currentUser = snapshot.docs[0]?.data()
 
@@ -91,11 +87,10 @@ export default function Profile() {
       })
   })
 
-  // get user memes
   useEffect(() => {
     db.collection("memes").onSnapshot((snapshot) => {
       const filteredMemes = snapshot.docs.filter(
-        (doc) => doc.data().userId === auth.currentUser?.uid
+        (doc) => doc.data().username === user
       )
 
       setUserMemes(
@@ -118,14 +113,6 @@ export default function Profile() {
         <Image src={userDetails?.avatarUrl} alt={userDetails?.username} />
         <Name>{userDetails?.username || "-"}</Name>
         <Description>{userDetails?.description || "-"}</Description>
-        <ActionsWrap>
-          <UploadAvatar />
-          <UpdateDescriptionModal
-            documentId={userDetails?.documentId}
-            currentDescription={userDetails?.description}
-          />
-          <UploadMemeModal />
-        </ActionsWrap>
       </UserDetails>
       <CardsWrapper>
         {userMemes.length === 0 ? (
