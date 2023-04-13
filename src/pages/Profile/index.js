@@ -162,7 +162,7 @@ export default function Profile() {
         <StyledImage src={userDetails?.avatarUrl} />
         <Name>{userDetails?.username}</Name>
         <Description>{userDetails?.description}</Description>
-        {auth.currentUser.uid == userDetails.userId && (
+        {auth.currentUser.uid === userDetails.userId && (
           <ActionsWrap>
             <UploadAvatar />
             <UpdateDescriptionModal
@@ -206,12 +206,13 @@ export default function Profile() {
               />
               <Button
                 onClick={() => {
+                  console.log(loggedUsername)
                   db.collection("comments").add({
                     comment: newComment.comment,
                     memeId: currentMeme.id,
                     userId: newComment.userId,
                     timestamp: new Date(),
-                    username: loggedUsername,
+                    username: username,
                   })
                   setNewComment({ comment: "", userId: "" })
                   fetchComments(currentMeme.id)

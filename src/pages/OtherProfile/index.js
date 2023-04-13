@@ -213,6 +213,7 @@ export default function OtherProfile() {
               />
               <Button
                 onClick={() => {
+                  console.log(loggedUsername)
                   db.collection("comments").add({
                     comment: newComment.comment,
                     memeId: currentMeme.id,
