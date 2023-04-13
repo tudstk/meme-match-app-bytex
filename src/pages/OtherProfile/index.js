@@ -5,10 +5,9 @@ import { db, auth } from "../../utils/firebase"
 import { Button, Modal, Input, Image } from "antd"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faComment } from "@fortawesome/free-solid-svg-icons"
-import {
-  doc,
-  getDoc,
-} from "https://www.gstatic.com/firebasejs/9.8.4/firebase-firestore.js"
+import UploadAvatar from "../Profile/components/UploadAvatar"
+import UpdateDescriptionModal from "../Profile/components/UpdateDescriptionModal"
+import UploadMemeModal from "../Profile/components/UploadMemeModal"
 
 const Content = styled.div`
   max-width: 880px;
@@ -73,6 +72,13 @@ const Description = styled.div`
   margin: 10px 0px;
   margin-bottom: 30px;
 `
+const ActionsWrap = styled.div`
+  display: flex;
+
+  & :not(:first-child) {
+    margin-left: 8px;
+  }
+`
 
 export default function OtherProfile() {
   const { user } = useParams()
@@ -107,6 +113,7 @@ export default function OtherProfile() {
           avatarUrl: currentUser?.avatarUrl,
           username: currentUser?.username,
           documentId: snapshot.docs[0]?.id,
+          userId: currentUser?.userId,
         })
       })
   }, [])
@@ -162,6 +169,16 @@ export default function OtherProfile() {
         <StyledImage src={userDetails?.avatarUrl} />
         <Name>{userDetails?.username}</Name>
         <Description>{userDetails?.description}</Description>
+        {auth.currentUser.uid === userDetails.userId && (
+          <ActionsWrap>
+            <UploadAvatar />
+            <UpdateDescriptionModal
+              documentId={userDetails?.documentId}
+              currentDescription={userDetails?.description}
+            />
+            <UploadMemeModal />
+          </ActionsWrap>
+        )}
       </UserDetails>
       <CardsWrapper>{userMemes.map((meme) => renderMeme(meme))}</CardsWrapper>
       {currentMeme && (
