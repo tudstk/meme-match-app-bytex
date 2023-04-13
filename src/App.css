@@ -36,3 +36,8 @@
     transform: rotate(360deg);
   }
 }
+
+.meme-card {
+  display: flex;
+  flex-direction: column;
+}

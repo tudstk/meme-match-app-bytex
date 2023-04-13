@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import styled from "styled-components"
 import { db, auth } from "../../utils/firebase"
+import { Button, Modal, Input, Image } from "antd"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons"
 
 const Content = styled.div`
   max-width: 880px;
@@ -22,16 +25,15 @@ const UserDetails = styled.div`
   padding: 20px;
 `
 
-const Image = styled.img`
+const StyledImage = styled.img`
   height: 180px;
   width: 180px;
   border-radius: 50%;
 `
 
 const Card = styled.div`
-  height: 350px;
+  height: 250px;
   width: 250px;
-  border-radius: 10px;
   margin-right: 20px;
 
   img {
@@ -42,12 +44,21 @@ const Card = styled.div`
   :nth-child(3n + 3) {
     margin-right: 0;
   }
+
+  img:hover {
+    cursor: pointer;
+    opacity: 0.3;
+  }
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 3rem;
 `
 
 const CardsWrapper = styled.div`
   display: flex;
   flex-flow: row wrap;
   padding: 20px;
+  margin-bottom: 5rem;
 `
 
 const Name = styled.div`
@@ -59,18 +70,24 @@ const Description = styled.div`
   margin-bottom: 30px;
 `
 
-const ActionsWrap = styled.div`
-  display: flex;
-
-  & :not(:first-child) {
-    margin-left: 8px;
-  }
-`
-
 export default function OtherProfile() {
   const { user } = useParams()
   const [userDetails, setUserDetails] = useState({})
   const [userMemes, setUserMemes] = useState([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [commentToAdd, setCommentToAdd] = useState("")
+
+  const showModal = () => {
+    setIsModalOpen(true)
+  }
+
+  const handleOk = () => {
+    setIsModalOpen(false)
+  }
+
+  const handleCancel = () => {
+    setIsModalOpen(false)
+  }
 
   useEffect(() => {
     db.collection("users")
@@ -102,7 +119,23 @@ export default function OtherProfile() {
   const renderMeme = (meme) => {
     return (
       <Card key={meme.id}>
-        <img src={meme.imageUrl} alt={meme.imageUrl} />
+        <Modal
+          title="Comments"
+          open={isModalOpen}
+          onOk={handleOk}
+          onCancel={handleCancel}
+          footer={null}
+        >
+          <Input
+            placeholder="Your comment here..."
+            onChange={(event) => setCommentToAdd(event.target.value)}
+          />
+          <Button>Submit comment</Button>
+        </Modal>
+        <Image width={250} height={250} src={meme.imageUrl} />
+        <Button onClick={showModal}>
+          <FontAwesomeIcon icon={faComment} />
+        </Button>
       </Card>
     )
   }
@@ -110,7 +143,7 @@ export default function OtherProfile() {
   return (
     <Content>
       <UserDetails>
-        <Image src={userDetails?.avatarUrl} alt={userDetails?.username} />
+        <StyledImage src={userDetails?.avatarUrl} alt={userDetails?.username} />
         <Name>{userDetails?.username || "-"}</Name>
         <Description>{userDetails?.description || "-"}</Description>
       </UserDetails>
