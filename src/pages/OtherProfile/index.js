@@ -5,6 +5,10 @@ import { db, auth } from "../../utils/firebase"
 import { Button, Modal, Input, Image } from "antd"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faComment } from "@fortawesome/free-solid-svg-icons"
+import {
+  doc,
+  getDoc,
+} from "https://www.gstatic.com/firebasejs/9.8.4/firebase-firestore.js"
 
 const Content = styled.div`
   max-width: 880px;
@@ -78,6 +82,7 @@ export default function OtherProfile() {
   const [currentMeme, setCurrentMeme] = useState(null)
   const [comments, setComments] = useState([])
   const [newComment, setNewComment] = useState({ comment: "", userId: "" })
+  const [loggedUsername, setLoggedUsername] = useState("")
 
   const showModal = () => {
     setIsModalOpen(true)
@@ -111,24 +116,22 @@ export default function OtherProfile() {
       const filteredMemes = snapshot.docs.filter(
         (doc) => doc.data().username === user
       )
-
       setUserMemes(
         filteredMemes.map((meme) => ({ id: meme.id, ...meme.data() }))
       )
     })
   }, [])
 
+  const fetchComments = async (memeId) => {
+    const querySnapshot = await db
+      .collection("comments")
+      .where("memeId", "==", memeId)
+      .orderBy("timestamp", "asc")
+      .get()
+    const comments = querySnapshot.docs.map((doc) => doc.data())
+    setComments(comments)
+  }
   const renderMeme = (meme) => {
-    const fetchComments = async (memeId) => {
-      const querySnapshot = await db
-        .collection("comments")
-        .where("memeId", "==", memeId)
-        .orderBy("timestamp", "asc")
-        .get()
-      const comments = querySnapshot.docs.map((doc) => doc.data())
-      setComments(comments)
-    }
-
     return (
       <Card key={meme.id}>
         <Image width={250} height={250} src={meme.imageUrl} alt="" />
@@ -144,19 +147,15 @@ export default function OtherProfile() {
       </Card>
     )
   }
-  const Comments = ({ comments }) => {
-    return (
-      <div>
-        {comments.map((comment) => (
-          <div key={comment.timestamp}>
-            <p>{comment.comment}</p>
-            <p>by {comment.userId}</p>
-          </div>
-        ))}
-      </div>
-    )
-  }
 
+  useEffect(() => {
+    db.collection("users")
+      .where("userId", "==", newComment.userId)
+      .onSnapshot((snapshot) => {
+        setLoggedUsername(snapshot.docs[0]?.data().username)
+        console.log(loggedUsername)
+      })
+  })
   return (
     <Content>
       <UserDetails>
@@ -168,7 +167,7 @@ export default function OtherProfile() {
       {currentMeme && (
         <>
           <Modal
-            visible={isModalOpen}
+            open={isModalOpen}
             onOk={handleOk}
             onCancel={handleCancel}
             footer={null}
@@ -178,8 +177,8 @@ export default function OtherProfile() {
               <div>
                 {comments.map((comment) => (
                   <div key={comment.timestamp}>
+                    <b>{comment.username}</b>
                     <p>{comment.comment}</p>
-                    <p>by {comment.userId}</p>
                   </div>
                 ))}
               </div>
@@ -191,6 +190,7 @@ export default function OtherProfile() {
                     ...newComment,
                     comment: e.target.value,
                     userId: auth.currentUser.uid,
+                    username: loggedUsername,
                   })
                 }
               />
@@ -201,8 +201,10 @@ export default function OtherProfile() {
                     memeId: currentMeme.id,
                     userId: newComment.userId,
                     timestamp: new Date(),
+                    username: loggedUsername,
                   })
                   setNewComment({ comment: "", userId: "" })
+                  fetchComments(currentMeme.id)
                 }}
               >
                 Add Comment
