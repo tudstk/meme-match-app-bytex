@@ -131,18 +131,14 @@ export default function OtherProfile() {
 
     return (
       <Card key={meme.id}>
-        <Image
-          width={250}
-          height={250}
-          src={meme.imageUrl}
-          alt=""
+        <Image width={250} height={250} src={meme.imageUrl} alt="" />
+        <Button
           onClick={() => {
             setCurrentMeme(meme)
-            showModal()
             fetchComments(meme.id)
+            showModal()
           }}
-        />
-        <Button onClick={showModal}>
+        >
           <FontAwesomeIcon icon={faComment} />
         </Button>
       </Card>
