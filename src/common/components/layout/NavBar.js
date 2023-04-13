@@ -57,7 +57,7 @@ const Navigation = styled.ul`
 `
 const MENU_ITEMS = [
   {
-    title: "Home",
+    title: "Feed",
     path: "/",
     icon: faHouse,
   },
