@@ -4,7 +4,7 @@ import styled from "styled-components"
 import { db, auth } from "../../utils/firebase"
 import { Button, Modal, Input, Image } from "antd"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons"
+import { faComment } from "@fortawesome/free-solid-svg-icons"
 
 const Content = styled.div`
   max-width: 880px;
@@ -75,7 +75,9 @@ export default function OtherProfile() {
   const [userDetails, setUserDetails] = useState({})
   const [userMemes, setUserMemes] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [commentToAdd, setCommentToAdd] = useState("")
+  const [currentMeme, setCurrentMeme] = useState(null)
+  const [comments, setComments] = useState([])
+  const [newComment, setNewComment] = useState({ comment: "", userId: "" })
 
   const showModal = () => {
     setIsModalOpen(true)
@@ -102,7 +104,7 @@ export default function OtherProfile() {
           documentId: snapshot.docs[0]?.id,
         })
       })
-  })
+  }, [])
 
   useEffect(() => {
     db.collection("memes").onSnapshot((snapshot) => {
@@ -117,43 +119,102 @@ export default function OtherProfile() {
   }, [])
 
   const renderMeme = (meme) => {
+    const fetchComments = async (memeId) => {
+      const querySnapshot = await db
+        .collection("comments")
+        .where("memeId", "==", memeId)
+        .orderBy("timestamp", "asc")
+        .get()
+      const comments = querySnapshot.docs.map((doc) => doc.data())
+      setComments(comments)
+    }
+
     return (
       <Card key={meme.id}>
-        <Modal
-          title="Comments"
-          open={isModalOpen}
-          onOk={handleOk}
-          onCancel={handleCancel}
-          footer={null}
-        >
-          <Input
-            placeholder="Your comment here..."
-            onChange={(event) => setCommentToAdd(event.target.value)}
-          />
-          <Button>Submit comment</Button>
-        </Modal>
-        <Image width={250} height={250} src={meme.imageUrl} />
+        <Image
+          width={250}
+          height={250}
+          src={meme.imageUrl}
+          alt=""
+          onClick={() => {
+            setCurrentMeme(meme)
+            showModal()
+            fetchComments(meme.id)
+          }}
+        />
         <Button onClick={showModal}>
           <FontAwesomeIcon icon={faComment} />
         </Button>
       </Card>
     )
   }
+  const Comments = ({ comments }) => {
+    return (
+      <div>
+        {comments.map((comment) => (
+          <div key={comment.timestamp}>
+            <p>{comment.comment}</p>
+            <p>by {comment.userId}</p>
+          </div>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <Content>
       <UserDetails>
-        <StyledImage src={userDetails?.avatarUrl} alt={userDetails?.username} />
-        <Name>{userDetails?.username || "-"}</Name>
-        <Description>{userDetails?.description || "-"}</Description>
+        <StyledImage src={userDetails?.avatarUrl} />
+        <Name>{userDetails?.username}</Name>
+        <Description>{userDetails?.description}</Description>
       </UserDetails>
-      <CardsWrapper>
-        {userMemes.length === 0 ? (
-          <span>You do not have uploaded memes yet</span>
-        ) : (
-          userMemes.map(renderMeme)
-        )}
-      </CardsWrapper>
+      <CardsWrapper>{userMemes.map((meme) => renderMeme(meme))}</CardsWrapper>
+      {currentMeme && (
+        <>
+          <Modal
+            visible={isModalOpen}
+            onOk={handleOk}
+            onCancel={handleCancel}
+            footer={null}
+            centered={true}
+          >
+            <div>
+              <div>
+                {comments.map((comment) => (
+                  <div key={comment.timestamp}>
+                    <p>{comment.comment}</p>
+                    <p>by {comment.userId}</p>
+                  </div>
+                ))}
+              </div>
+              <Input
+                placeholder="Add comment"
+                value={newComment.comment}
+                onChange={(e) =>
+                  setNewComment({
+                    ...newComment,
+                    comment: e.target.value,
+                    userId: auth.currentUser.uid,
+                  })
+                }
+              />
+              <Button
+                onClick={() => {
+                  db.collection("comments").add({
+                    comment: newComment.comment,
+                    memeId: currentMeme.id,
+                    userId: newComment.userId,
+                    timestamp: new Date(),
+                  })
+                  setNewComment({ comment: "", userId: "" })
+                }}
+              >
+                Add Comment
+              </Button>
+            </div>
+          </Modal>
+        </>
+      )}
     </Content>
   )
 }
