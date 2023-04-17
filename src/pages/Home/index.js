@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react"
 import Card from "../../common/components/cards/Meme"
 import styled from "styled-components"
 import { db } from "../../utils/firebase"
+import { Button, Input } from "antd"
+import { Link, useNavigate } from "react-router-dom"
 
 const Wrap = styled.div`
   display: flex;
@@ -17,6 +19,8 @@ const Search = styled.div`
 
 function Home() {
   const [memes, setMemes] = useState(null)
+  const [inputText, setInputText] = useState("")
+  const navigate = useNavigate()
 
   useEffect(() => {
     async function getMemes() {
@@ -28,13 +32,30 @@ function Home() {
     getMemes()
   }, [])
 
+  const navigateToProfile = async () => {
+    const usersRef = db.collection("users")
+    const querySnapshot = await usersRef
+      .where("username", "==", inputText)
+      .get()
+    if (!querySnapshot.empty) {
+      navigate(`/${inputText}`)
+    } else {
+      alert("User not found")
+    }
+  }
+
   return (
     <>
       <Wrap>
         <Search>
-          <label htmlFor="find-user">Find a user</label>
-          <input placeholder="Find user..." id="find-user" />
-          <button>Go to profile</button>
+          <Input
+            label="Find User"
+            placeholder="Find user..."
+            onChange={(event) => {
+              setInputText(event.target.value)
+            }}
+          />
+          <Button onClick={navigateToProfile}>Go to profile</Button>
         </Search>
         {memes &&
           memes.map((meme) => (
