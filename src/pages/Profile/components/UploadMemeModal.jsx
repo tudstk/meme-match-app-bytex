@@ -34,6 +34,7 @@ export default function UploadMemeModal() {
       imageUrl,
       username: auth.currentUser.displayName,
       userId: auth.currentUser.uid,
+      likes: [],
     })
   }
 

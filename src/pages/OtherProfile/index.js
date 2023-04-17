@@ -8,7 +8,7 @@ import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons"
 import UploadAvatar from "../Profile/components/UploadAvatar"
 import UpdateDescriptionModal from "../Profile/components/UpdateDescriptionModal"
 import UploadMemeModal from "../Profile/components/UploadMemeModal"
-import { doc, getDoc } from "firebase/firestore"
+import { doc, getDoc, updateDoc } from "firebase/firestore"
 
 const Content = styled.div`
   max-width: 880px;
@@ -141,10 +141,20 @@ export default function OtherProfile() {
     setComments(comments)
   }
 
-  const fetchLikes = async (memeId) => {
-    const docRef = doc(db, "memes", memeId)
-    const docSnap = await getDoc(docRef)
-    setLikesNumber(docSnap.data().likes)
+  const addLike = async (memeId) => {
+    const memeRef = db.collection("memes").doc(memeId)
+    const memeDoc = await memeRef.get()
+    const likedUsers = memeDoc.data().likes
+
+    if (likedUsers.includes(auth.currentUser.uid)) {
+      const updatedLikes = likedUsers.filter(
+        (userId) => userId !== auth.currentUser.uid
+      )
+      await memeRef.update({ likes: updatedLikes })
+    } else {
+      const updatedLikes = [...likedUsers, auth.currentUser.uid]
+      await memeRef.update({ likes: updatedLikes })
+    }
   }
 
   const renderMeme = (meme) => {
@@ -163,11 +173,11 @@ export default function OtherProfile() {
           </Button>
           <Button
             onClick={() => {
-              fetchLikes(meme.id)
+              addLike(meme.id)
             }}
           >
             <FontAwesomeIcon icon={faHeart} />
-            {likesNumber}
+            {meme.likes.length}
           </Button>
         </div>
       </Card>

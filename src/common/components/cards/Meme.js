@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react"
 import styled from "styled-components"
 import { Button, Modal, Input, Image } from "antd"
 import { db, auth } from "../../../utils/firebase"
+import { Link } from "react-router-dom"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons"
 
 const StyledImage = styled.div`
   height: 480px;
@@ -23,9 +26,20 @@ const Wrapper = styled.div`
 export default function Card({ id, name, url }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [comments, setComments] = useState([])
-  const [currentMeme, setCurrentMeme] = useState(null)
   const [newComment, setNewComment] = useState({ comment: "", userId: "" })
   const [loggedUsername, setLoggedUsername] = useState("")
+
+  const [likes, setLikes] = useState([])
+
+  useEffect(() => {
+    const unsubscribe = db
+      .collection("memes")
+      .doc(id)
+      .onSnapshot((doc) => {
+        setLikes(doc.data().likes)
+      })
+    return () => unsubscribe()
+  }, [id])
 
   const showModal = () => {
     setIsModalOpen(true)
@@ -39,6 +53,21 @@ export default function Card({ id, name, url }) {
     setIsModalOpen(false)
   }
 
+  const addLike = async (memeId) => {
+    const memeRef = db.collection("memes").doc(memeId)
+    const memeDoc = await memeRef.get()
+    const likedUsers = memeDoc.data().likes
+
+    if (likedUsers.includes(auth.currentUser.uid)) {
+      const updatedLikes = likedUsers.filter(
+        (userId) => userId !== auth.currentUser.uid
+      )
+      await memeRef.update({ likes: updatedLikes })
+    } else {
+      const updatedLikes = [...likedUsers, auth.currentUser.uid]
+      await memeRef.update({ likes: updatedLikes })
+    }
+  }
   const fetchComments = async (memeId) => {
     const querySnapshot = await db
       .collection("comments")
@@ -58,9 +87,12 @@ export default function Card({ id, name, url }) {
         console.log(loggedUsername)
       })
   })
+
   return (
     <Wrapper key={id}>
-      <span>{name}</span>
+      <Link to={`/${name}`}>
+        <span>{name}</span>
+      </Link>
 
       <StyledImage url={url} />
       <Button
@@ -69,7 +101,15 @@ export default function Card({ id, name, url }) {
           showModal()
         }}
       >
-        Show comments
+        <FontAwesomeIcon icon={faComment} />
+      </Button>
+      <Button
+        onClick={() => {
+          addLike(id)
+        }}
+      >
+        <FontAwesomeIcon icon={faHeart} />
+        {likes.length}
       </Button>
       <Modal
         title="Comments"
