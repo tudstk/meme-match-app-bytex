@@ -9,6 +9,7 @@ import UploadAvatar from "../Profile/components/UploadAvatar"
 import UpdateDescriptionModal from "../Profile/components/UpdateDescriptionModal"
 import UploadMemeModal from "../Profile/components/UploadMemeModal"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
+import ViewLikes from "../Profile/components/ViewLikes"
 
 const Content = styled.div`
   max-width: 880px;
@@ -179,6 +180,7 @@ export default function OtherProfile() {
             <FontAwesomeIcon icon={faHeart} />
             {meme.likes.length}
           </Button>
+          <ViewLikes memeId={meme.id} username={userDetails.username} />
         </div>
       </Card>
     )

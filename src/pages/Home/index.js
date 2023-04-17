@@ -10,6 +10,10 @@ const Wrap = styled.div`
   align-items: center;
   padding-top: 60px;
 `
+const Search = styled.div`
+  display: flex;
+  flex-direction: column;
+`
 
 function Home() {
   const [memes, setMemes] = useState(null)
@@ -25,17 +29,24 @@ function Home() {
   }, [])
 
   return (
-    <Wrap>
-      {memes &&
-        memes.map((meme) => (
-          <Card
-            key={meme.id}
-            url={meme.imageUrl}
-            name={meme.username}
-            id={meme.id}
-          />
-        ))}
-    </Wrap>
+    <>
+      <Wrap>
+        <Search>
+          <label htmlFor="find-user">Find a user</label>
+          <input placeholder="Find user..." id="find-user" />
+          <button>Go to profile</button>
+        </Search>
+        {memes &&
+          memes.map((meme) => (
+            <Card
+              key={meme.id}
+              url={meme.imageUrl}
+              name={meme.username}
+              id={meme.id}
+            />
+          ))}
+      </Wrap>
+    </>
   )
 }
 

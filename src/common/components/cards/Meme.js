@@ -5,6 +5,7 @@ import { db, auth } from "../../../utils/firebase"
 import { Link } from "react-router-dom"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons"
+import ViewLikes from "../../../pages/Profile/components/ViewLikes"
 
 const StyledImage = styled.div`
   height: 480px;
@@ -111,6 +112,7 @@ export default function Card({ id, name, url }) {
         <FontAwesomeIcon icon={faHeart} />
         {likes.length}
       </Button>
+      <ViewLikes memeId={id} username={loggedUsername} />
       <Modal
         title="Comments"
         open={isModalOpen}

@@ -5,9 +5,11 @@ import UploadAvatar from "./components/UploadAvatar"
 import UpdateDescriptionModal from "./components/UpdateDescriptionModal"
 import UploadMemeModal from "./components/UploadMemeModal"
 import { Button, Modal, Input, Image } from "antd"
-import { faComment } from "@fortawesome/free-solid-svg-icons"
+import { faComment, faTrash, faHeart } from "@fortawesome/free-solid-svg-icons"
 import { auth, db } from "../../utils/firebase"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import ViewLikes from "./components/ViewLikes"
+import DeleteMeme from "./components/DeleteMeme"
 
 const Content = styled.div`
   max-width: 880px;
@@ -143,15 +145,19 @@ export default function Profile() {
     return (
       <Card key={meme.id}>
         <Image width={250} height={250} src={meme.imageUrl} alt="" />
-        <Button
-          onClick={() => {
-            setCurrentMeme(meme)
-            fetchComments(meme.id)
-            showModal()
-          }}
-        >
-          <FontAwesomeIcon icon={faComment} />
-        </Button>
+        <div>
+          <Button
+            onClick={() => {
+              setCurrentMeme(meme)
+              fetchComments(meme.id)
+              showModal()
+            }}
+          >
+            <FontAwesomeIcon icon={faComment} />
+          </Button>
+          <ViewLikes memeId={meme.id} username={userDetails?.username} />
+          <DeleteMeme memeId={meme.id} username={userDetails?.username} />
+        </div>
       </Card>
     )
   }
