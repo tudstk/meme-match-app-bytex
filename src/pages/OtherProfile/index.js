@@ -4,10 +4,11 @@ import styled from "styled-components"
 import { db, auth } from "../../utils/firebase"
 import { Button, Modal, Input, Image } from "antd"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faComment } from "@fortawesome/free-solid-svg-icons"
+import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons"
 import UploadAvatar from "../Profile/components/UploadAvatar"
 import UpdateDescriptionModal from "../Profile/components/UpdateDescriptionModal"
 import UploadMemeModal from "../Profile/components/UploadMemeModal"
+import { doc, getDoc } from "firebase/firestore"
 
 const Content = styled.div`
   max-width: 880px;
@@ -89,6 +90,7 @@ export default function OtherProfile() {
   const [comments, setComments] = useState([])
   const [newComment, setNewComment] = useState({ comment: "", userId: "" })
   const [loggedUsername, setLoggedUsername] = useState("")
+  const [likesNumber, setLikesNumber] = useState(0)
 
   const showModal = () => {
     setIsModalOpen(true)
@@ -138,19 +140,36 @@ export default function OtherProfile() {
     const comments = querySnapshot.docs.map((doc) => doc.data())
     setComments(comments)
   }
+
+  const fetchLikes = async (memeId) => {
+    const docRef = doc(db, "memes", memeId)
+    const docSnap = await getDoc(docRef)
+    setLikesNumber(docSnap.data().likes)
+  }
+
   const renderMeme = (meme) => {
     return (
       <Card key={meme.id}>
         <Image width={250} height={250} src={meme.imageUrl} alt="" />
-        <Button
-          onClick={() => {
-            setCurrentMeme(meme)
-            fetchComments(meme.id)
-            showModal()
-          }}
-        >
-          <FontAwesomeIcon icon={faComment} />
-        </Button>
+        <div>
+          <Button
+            onClick={() => {
+              setCurrentMeme(meme)
+              fetchComments(meme.id)
+              showModal()
+            }}
+          >
+            <FontAwesomeIcon icon={faComment} />
+          </Button>
+          <Button
+            onClick={() => {
+              fetchLikes(meme.id)
+            }}
+          >
+            <FontAwesomeIcon icon={faHeart} />
+            {likesNumber}
+          </Button>
+        </div>
       </Card>
     )
   }
