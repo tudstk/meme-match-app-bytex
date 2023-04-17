@@ -16,7 +16,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        index: true,
+        // index: true,
         element: <Home />,
       },
       { path: "find", element: <Find /> },
@@ -34,6 +34,7 @@ export const router = createBrowserRouter([
       {
         path: "login",
         element: <Login />,
+        index: true,
       },
       {
         path: "register",
