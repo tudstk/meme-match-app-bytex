@@ -5,7 +5,7 @@ import UploadAvatar from "./components/UploadAvatar"
 import UpdateDescriptionModal from "./components/UpdateDescriptionModal"
 import UploadMemeModal from "./components/UploadMemeModal"
 import { Button, Modal, Input, Image } from "antd"
-import { faComment, faTrash, faHeart } from "@fortawesome/free-solid-svg-icons"
+import { faComment } from "@fortawesome/free-solid-svg-icons"
 import { auth, db } from "../../utils/firebase"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import ViewLikes from "./components/ViewLikes"
@@ -90,7 +90,6 @@ export default function Profile() {
   const [currentMeme, setCurrentMeme] = useState(null)
   const [comments, setComments] = useState([])
   const [newComment, setNewComment] = useState({ comment: "", userId: "" })
-  const [loggedUsername, setLoggedUsername] = useState("")
 
   const showModal = () => {
     setIsModalOpen(true)
@@ -118,7 +117,7 @@ export default function Profile() {
           userId: currentUser?.userId,
         })
       })
-  }, [])
+  }, [username])
 
   useEffect(() => {
     db.collection("memes").onSnapshot((snapshot) => {
@@ -129,7 +128,7 @@ export default function Profile() {
         filteredMemes.map((meme) => ({ id: meme.id, ...meme.data() }))
       )
     })
-  }, [])
+  }, [username])
 
   const fetchComments = async (memeId) => {
     const querySnapshot = await db
@@ -206,13 +205,11 @@ export default function Profile() {
                     ...newComment,
                     comment: e.target.value,
                     userId: auth.currentUser.uid,
-                    username: loggedUsername,
                   })
                 }
               />
               <Button
                 onClick={() => {
-                  console.log(loggedUsername)
                   db.collection("comments").add({
                     comment: newComment.comment,
                     memeId: currentMeme.id,

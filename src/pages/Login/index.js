@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import { Input } from "antd"
 import AuthLayout from "../../common/components/layout/Auth"
 import { auth, db } from "../../utils/firebase"

@@ -29,7 +29,7 @@ export default function DeleteMeme({ memeId, username }) {
         filteredMemes.map((meme) => ({ id: meme.id, ...meme.data() }))
       )
     })
-  }, [])
+  }, [username])
 
   const handleDeleteMeme = async () => {
     try {

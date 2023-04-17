@@ -3,7 +3,7 @@ import Card from "../../common/components/cards/Meme"
 import styled from "styled-components"
 import { db } from "../../utils/firebase"
 import { Button, Input } from "antd"
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 const Wrap = styled.div`
   display: flex;

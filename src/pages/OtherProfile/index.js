@@ -8,7 +8,6 @@ import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons"
 import UploadAvatar from "../Profile/components/UploadAvatar"
 import UpdateDescriptionModal from "../Profile/components/UpdateDescriptionModal"
 import UploadMemeModal from "../Profile/components/UploadMemeModal"
-import { doc, getDoc, updateDoc } from "firebase/firestore"
 import ViewLikes from "../Profile/components/ViewLikes"
 
 const Content = styled.div`
@@ -91,7 +90,6 @@ export default function OtherProfile() {
   const [comments, setComments] = useState([])
   const [newComment, setNewComment] = useState({ comment: "", userId: "" })
   const [loggedUsername, setLoggedUsername] = useState("")
-  const [likesNumber, setLikesNumber] = useState(0)
 
   const showModal = () => {
     setIsModalOpen(true)
@@ -119,7 +117,7 @@ export default function OtherProfile() {
           userId: currentUser?.userId,
         })
       })
-  }, [])
+  }, [user])
 
   useEffect(() => {
     db.collection("memes").onSnapshot((snapshot) => {
@@ -130,7 +128,7 @@ export default function OtherProfile() {
         filteredMemes.map((meme) => ({ id: meme.id, ...meme.data() }))
       )
     })
-  }, [])
+  }, [user])
 
   const fetchComments = async (memeId) => {
     const querySnapshot = await db
@@ -191,7 +189,6 @@ export default function OtherProfile() {
       .where("userId", "==", newComment.userId)
       .onSnapshot((snapshot) => {
         setLoggedUsername(snapshot.docs[0]?.data().username)
-        console.log(loggedUsername)
       })
   })
   return (
@@ -244,7 +241,6 @@ export default function OtherProfile() {
               />
               <Button
                 onClick={() => {
-                  console.log(loggedUsername)
                   db.collection("comments").add({
                     comment: newComment.comment,
                     memeId: currentMeme.id,
